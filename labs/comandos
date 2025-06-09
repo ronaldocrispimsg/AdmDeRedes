@@ -1,0 +1,44 @@
+#No terminal
+kathara lstart
+kathara wipe -f
+
+#Comandos Bridge Control
+[exec]=brctl addbr br0
+[exec]=brctl addif br0 eth0 eth1 eth2 eth3
+[exec]=brctl stp br0 on
+
+#ifconfig
+[exec]=ifconfig eth0 192.168.100.1/24
+[exec]=ifconfig br0 up
+
+#No servidor
+netstat -l <- ver se a porta 48 do servidor está ativa. 
+cd /etc/dhcp
+nano dhcpd.conf
+
+mkdir /hosthome/labs/lab4.1/server
+cd /hosthome/labs/lab4.1/server
+cp /etc/dhcp/dhcpd.conf . --parents
+
+dhcp-lease-list
+
+#No lab.conf
+server[exec]=/etc/init.d/isc-dhcp-server start
+pc0[exec]=dhclient eth0 -v
+
+
+#Suposto calculo de um ip 192.168.129.68/26
+- Primeiro abrimos os octetos do ip
+
+1 1 0 0 0 0 0 0 . 1 0 1 0 1 0 0 0 . 1 0 0 0 0 0 0 1 . 0 1|0 0 0 0 0 0
+
+- Como a mascara é /26 não precisamos abrir os 3 primeiros já que todos os bits são de rede, assim vamos abrir só o ultimo.
+
+ 128   64   32   16    8   4   2   1
+.  0    1 |  0    0    0   0   0   0
+
+- Sabendo que o ip é 192.168.129.68/26(host) e queremos encontrar o ip da rede, vamos mexer nos 2 primeiros bits do ultimo octeto e prestar atenção para que ele não ultrapasse o (host). 
+- Dessa maneira sabemos que o ip da rede é 192.168.129.64/26.
+
+###Se o servidor nao esta subindo verifica o dhcpd.conf e o ip da subrede e o intervalo###
+
