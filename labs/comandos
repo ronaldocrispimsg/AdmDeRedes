@@ -7,6 +7,10 @@ kathara wipe -f
 [exec]=brctl addif br0 eth0 eth1 eth2 eth3
 [exec]=brctl stp br0 on
 
+
+Nao confundir stp br0 on com ifconfig br0 up
+
+
 #ifconfig
 [exec]=ifconfig eth0 192.168.100.1/24
 [exec]=ifconfig br0 up
@@ -21,6 +25,11 @@ cd /hosthome/labs/lab4.1/server
 cp /etc/dhcp/dhcpd.conf . --parents
 
 dhcp-lease-list
+netstat -lbrc
+
+#No roteador
+routermoc[exec]=route add default gw 200.131.5.106/30
+routermoc[exec]=route add -net 8.8.8.8/30 gw 200.131.5.106
 
 #No lab.conf
 server[exec]=/etc/init.d/isc-dhcp-server start
