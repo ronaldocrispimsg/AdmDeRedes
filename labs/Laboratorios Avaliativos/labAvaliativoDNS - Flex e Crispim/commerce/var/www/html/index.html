@@ -1,0 +1,289 @@
+
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Meu Site • Apache2</title>
+  <meta name="description" content="Site estático simples, responsivo e leve para servir no Apache2." />
+  <meta name="color-scheme" content="dark light" />
+  <style>
+    :root{
+      --bg: #0b0f1a;
+      --surface: #101626;
+      --text: #e8eefc;
+      --muted: #a9b4cc;
+      --accent: #0d47a1; /* azul escuro quase preto */
+      --accent-2: #1a73e8;
+      --ok: #18a558;
+      --warn: #cc8b13;
+      --err: #d64a4a;
+      --radius: 16px;
+      --shadow: 0 6px 20px rgba(0,0,0,.25);
+    }
+    @media (prefers-color-scheme: light){
+      :root{ --bg:#f7f9fc; --surface:#ffffff; --text:#0b0f1a; --muted:#4c566a; --shadow: 0 8px 24px rgba(10,20,40,.08); }
+    }
+    html,body{height:100%;}
+    *{box-sizing:border-box}
+    body{
+      margin:0; font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 700px at 85% -10%, rgba(13,71,161,.18), transparent 60%),
+                  radial-gradient(900px 600px at 10% 110%, rgba(26,115,232,.15), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+      scroll-behavior: smooth;
+    }
+    a{color: var(--accent-2); text-decoration: none}
+    a:hover{ text-decoration: underline }
+    .container{ width:min(1100px, 92vw); margin:0 auto }
+
+    /* Header */
+    header{
+      position: sticky; top:0; z-index:50; backdrop-filter:saturate(1.2) blur(8px);
+      background: color-mix(in oklab, var(--bg) 88%, transparent);
+      border-bottom: 1px solid color-mix(in oklab, var(--muted) 20%, transparent);
+    }
+    .nav{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0 }
+    .brand{ display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.3px }
+    .logo{ width:26px; height:26px; border-radius:8px; background: linear-gradient(135deg, var(--accent), #061b3a); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 4px 14px rgba(13,71,161,.35); }
+    .menu{ display:flex; gap:14px; align-items:center }
+    .menu a{ padding:6px 10px; border-radius:10px }
+    .menu a.active, .menu a:hover{ background: color-mix(in oklab, var(--surface) 88%, transparent); text-decoration:none }
+    .cta{ padding:6px 12px; border-radius:999px; border:1px solid color-mix(in oklab, var(--accent) 65%, var(--surface)); background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 18%, transparent), transparent); box-shadow: var(--shadow); color:#fff }
+
+    /* Hero */
+    .hero{ display:grid; grid-template-columns: 1.2fr 1fr; gap:24px; padding:38px 0 26px }
+    .badge{ display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border:1px solid color-mix(in oklab, var(--accent) 45%, var(--surface)); border-radius:999px; background: color-mix(in oklab, var(--surface) 75%, transparent); font-size:12px; color: var(--muted) }
+    .title{ font-size: clamp(26px, 3.8vw, 44px); line-height:1.1; margin:14px 0 10px }
+    .subtitle{ color: var(--muted); max-width: 55ch }
+    .hero-card{ background: linear-gradient(180deg, color-mix(in oklab, var(--surface) 85%, transparent), color-mix(in oklab, var(--surface) 95%, var(--bg))); border:1px solid color-mix(in oklab, var(--muted) 20%, transparent); border-radius: var(--radius); box-shadow: var(--shadow); padding:18px }
+    .hero-list{ display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-top:12px }
+    .chip{ border:1px dashed color-mix(in oklab, var(--muted) 35%, transparent); border-radius:12px; padding:8px 10px; font-size:12px; text-align:center }
+
+    /* Sections */
+    section{ padding: 28px 0 }
+    .grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap:16px }
+    .card{ background: color-mix(in oklab, var(--surface) 92%, var(--bg)); border:1px solid color-mix(in oklab, var(--muted) 18%, transparent); border-radius: var(--radius); padding:14px; box-shadow: var(--shadow) }
+    .card h3{ margin: 10px 0 6px; font-size: 16px }
+    .card p{ margin:0; color: var(--muted); font-size: 13px }
+
+    /* Gallery */
+    .gallery{ display:grid; grid-template-columns: repeat(6, 1fr); gap:10px }
+    .tile{ aspect-ratio: 1.2/1; border-radius:14px; background: linear-gradient(150deg, color-mix(in oklab, var(--accent) 18%, transparent), color-mix(in oklab, var(--surface) 90%, transparent)); border:1px solid color-mix(in oklab, var(--muted) 20%, transparent) }
+
+    /* Footer */
+    footer{ padding: 26px 0 50px; color: var(--muted); border-top:1px solid color-mix(in oklab, var(--muted) 20%, transparent) }
+
+    /* Utilities */
+    .row{ display:flex; gap:12px; align-items:center; flex-wrap: wrap }
+    .spacer{ height: 24px }
+    .muted{ color: var(--muted) }
+    .right{ margin-left:auto }
+    .sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0) }
+
+    /* Responsive */
+    @media (max-width: 900px){
+      .hero{ grid-template-columns: 1fr; }
+      .hero-list{ grid-template-columns: repeat(2, 1fr) }
+      .grid{ grid-template-columns: 1fr 1fr }
+      .gallery{ grid-template-columns: repeat(4, 1fr) }
+      .menu{ display:none }
+      .menu--mobile{ display:flex }
+    }
+    @media (max-width: 520px){
+      .grid, .hero-list{ grid-template-columns: 1fr }
+      .gallery{ grid-template-columns: repeat(2, 1fr) }
+    }
+
+    /* Small button & menu */
+    .btn{ display:inline-flex; align-items:center; gap:8px; border:1px solid color-mix(in oklab, var(--accent) 35%, var(--surface)); background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 10%, transparent), transparent); color:var(--text); border-radius: 12px; padding:7px 10px; cursor:pointer }
+    .btn:active{ transform: translateY(1px) }
+    .ghost{ background: transparent }
+    .menu--mobile{ display:none; padding-bottom: 10px }
+    .mobile-panel{ display:none; padding:8px; border:1px solid color-mix(in oklab, var(--muted) 20%, transparent); border-radius:12px; background: color-mix(in oklab, var(--surface) 92%, var(--bg)) }
+    .mobile-panel a{ display:block; padding:8px 10px; border-radius:8px }
+    .mobile-panel a:hover{ background: color-mix(in oklab, var(--surface) 85%, transparent) }
+
+    /* Back to top */
+    #toplink{ position:fixed; right:16px; bottom:16px; border-radius:999px; padding:10px 12px; box-shadow: var(--shadow); display:none }
+  </style>
+</head>
+<body>
+  <a id="top" class="sr" href="#conteudo">Pular para o conteúdo</a>
+  <header>
+    <div class="container nav">
+      <div class="brand"> <span class="logo" aria-hidden="true"></span> <span>Meu Site</span> </div>
+      <nav class="menu" aria-label="Primária">
+        <a href="#inicio" class="active">Início</a>
+        <a href="#recursos">Recursos</a>
+        <a href="#galeria">Galeria</a>
+        <a href="#contato">Contato</a>
+      </nav>
+      <div class="row menu--mobile">
+        <button class="btn ghost" id="menuBtn" aria-expanded="false" aria-controls="mobilePanel" aria-label="Abrir menu">☰</button>
+        <a class="btn cta" href="#contato">Começar</a>
+      </div>
+    </div>
+    <div class="container mobile-panel" id="mobilePanel" role="dialog" aria-label="Menu">
+      <a href="#inicio">Início</a>
+      <a href="#recursos">Recursos</a>
+      <a href="#galeria">Galeria</a>
+      <a href="#contato">Contato</a>
+    </div>
+  </header>
+
+  <main id="conteudo" class="container">
+    <section id="inicio" class="hero">
+      <div>
+        <span class="badge">🔒 Pronto para produção • ⚡ Leve • 📱 Responsivo</span>
+        <h1 class="title">Um template limpo para servir no <span style="white-space:nowrap">Apache2</span></h1>
+        <p class="subtitle">Cole este arquivo como <code>index.html</code> no diretório do seu servidor (geralmente <code>/var/www/html/</code>) e você já terá uma página bonita, rápida e responsiva, com tema azul escuro.</p>
+        <div class="spacer"></div>
+        <div class="row">
+          <a class="btn cta" href="#recursos">Ver recursos</a>
+          <a class="btn" href="#galeria">Explorar galeria</a>
+          <a class="btn ghost" href="#contato">Falar com a gente →</a>
+        </div>
+        <div class="spacer"></div>
+        <div class="hero-card">
+          <div class="row" style="justify-content:space-between">
+            <div>
+              <strong>HTML + CSS + JS</strong>
+              <p class="muted" style="margin:6px 0 0">Arquivo único, sem dependências externas.</p>
+            </div>
+            <div class="row" aria-hidden="true">
+              <div class="chip">SEO básico</div>
+              <div class="chip">Dark/Light</div>
+              <div class="chip">A11y</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-card" aria-label="Cartão de destaque">
+        <svg viewBox="0 0 400 260" role="img" aria-label="Gráfico decorativo" style="width:100%; height:220px; display:block">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="currentColor" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="currentColor" stop-opacity="0.05"/>
+            </linearGradient>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#g1)" rx="14" />
+          <g transform="translate(14,12)" fill="none" stroke="currentColor" opacity=".25">
+            <path d="M0 30 H370M0 70H370M0 110H370M0 150H370M0 190H370" />
+          </g>
+          <polyline points="10,190 60,160 110,175 160,120 210,140 260,90 310,110 360,70" fill="none" stroke="currentColor" stroke-opacity=".75" stroke-width="2" />
+          <circle cx="360" cy="70" r="4" fill="currentColor" />
+        </svg>
+        <p class="muted" style="margin:6px 0 0">Substitua este cartão pelo seu conteúdo (imagem, gráfico, formulário, etc.).</p>
+      </div>
+    </section>
+
+    <section id="recursos">
+      <h2 class="sr">Recursos</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>Rápido e leve</h3>
+          <p>Sem frameworks externos. Tudo em um único arquivo para facilitar o deploy.</p>
+        </article>
+        <article class="card">
+          <h3>Responsivo</h3>
+          <p>Layout fluido com grids, ajusta de 320px a telas grandes.</p>
+        </article>
+        <article class="card">
+          <h3>Dark/Light</h3>
+          <p>Respeita o tema do sistema com <code>prefers-color-scheme</code>.</p>
+        </article>
+        <article class="card">
+          <h3>Acessível</h3>
+          <p>Navegação por teclado, contraste adequado e rótulos ARIA.</p>
+        </article>
+        <article class="card">
+          <h3>Estilo azul</h3>
+          <p>Paleta azul escura discreta (pode ajustar em <code>:root</code>).</p>
+        </article>
+        <article class="card">
+          <h3>Pronto para editar</h3>
+          <p>Seções comuns (hero, features, galeria, contato, rodapé).</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="galeria">
+      <h2 class="sr">Galeria</h2>
+      <div class="gallery" aria-label="Galeria de blocos">
+        <div class="tile" role="img" aria-label="Item 1"></div>
+        <div class="tile" role="img" aria-label="Item 2"></div>
+        <div class="tile" role="img" aria-label="Item 3"></div>
+        <div class="tile" role="img" aria-label="Item 4"></div>
+        <div class="tile" role="img" aria-label="Item 5"></div>
+        <div class="tile" role="img" aria-label="Item 6"></div>
+      </div>
+    </section>
+
+    <section id="contato">
+      <h2 class="sr">Contato</h2>
+      <form class="card" onsubmit="event.preventDefault(); alert('Mensagem enviada! (demo)'); this.reset();">
+        <div class="row" style="gap:10px">
+          <label class="sr" for="nome">Nome</label>
+          <input id="nome" name="nome" required placeholder="Seu nome" style="flex:1; min-width:200px; padding:10px 12px; border-radius:12px; border:1px solid color-mix(in oklab, var(--muted) 28%, transparent); background: color-mix(in oklab, var(--surface) 96%, var(--bg)); color: var(--text)" />
+          <label class="sr" for="email">Email</label>
+          <input id="email" name="email" type="email" required placeholder="voce@dominio.com" style="flex:1; min-width:220px; padding:10px 12px; border-radius:12px; border:1px solid color-mix(in oklab, var(--muted) 28%, transparent); background: color-mix(in oklab, var(--surface) 96%, var(--bg)); color: var(--text)" />
+        </div>
+        <div class="spacer"></div>
+        <label class="sr" for="msg">Mensagem</label>
+        <textarea id="msg" name="msg" rows="4" required placeholder="Escreva sua mensagem..." style="width:100%; padding:10px 12px; border-radius:12px; border:1px solid color-mix(in oklab, var(--muted) 28%, transparent); background: color-mix(in oklab, var(--surface) 96%, var(--bg)); color: var(--text)"></textarea>
+        <div class="spacer"></div>
+        <div class="row">
+          <button class="btn cta" type="submit">Enviar</button>
+          <button class="btn ghost" type="reset">Limpar</button>
+          <span class="muted right">* Demonstração local, sem envio real.</span>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container row" style="justify-content:space-between">
+      <small>© <span id="y"></span> Meu Site. Todos os direitos reservados.</small>
+      <small><a href="#top">Voltar ao topo</a></small>
+    </div>
+  </footer>
+
+  <a href="#top" id="toplink" class="btn cta" aria-label="Voltar ao topo">↑</a>
+
+  <script>
+    // Ano do rodapé
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    // Menu mobile
+    const btn = document.getElementById('menuBtn');
+    const panel = document.getElementById('mobilePanel');
+    btn?.addEventListener('click', () => {
+      const open = panel.style.display === 'block';
+      panel.style.display = open ? 'none' : 'block';
+      btn.setAttribute('aria-expanded', String(!open));
+    });
+
+    // Mostrar botão de voltar ao topo
+    const toplink = document.getElementById('toplink');
+    const toggleTop = () => { toplink.style.display = window.scrollY > 300 ? 'inline-flex' : 'none'; };
+    window.addEventListener('scroll', toggleTop, { passive:true });
+    toggleTop();
+
+    // Suave no hash (fallback para navegadores antigos)
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', (e) => {
+        const id = a.getAttribute('href');
+        if (!id || id === '#') return;
+        const el = document.querySelector(id);
+        if (!el) return;
+        e.preventDefault();
+        el.scrollIntoView({ behavior: 'smooth', block:'start' });
+        history.replaceState(null, '', id);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+zone "br" {
+  type master;
+  file "/etc/bind/db.br";
+};
+

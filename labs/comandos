@@ -8,7 +8,7 @@ kathara wipe -f
 [exec]=brctl stp br0 on
 
 
-Nao confundir stp br0 on com ifconfig br0 up
+#Nao confundir "stp br0 on" com "ifconfig br0 up"
 
 
 #ifconfig
@@ -28,13 +28,44 @@ dhcp-lease-list
 netstat -lbrc
 
 #No roteador
-routermoc[exec]=route add default gw 200.131.5.106/30
+routermoc[exec]=route add default gw 200.131.5.106
 routermoc[exec]=route add -net 8.8.8.8/30 gw 200.131.5.106
+
+VRRP
+ls /etc/keepalived/samples/
+cp /etc/keepalived/samples/keepalived.conf.track_interface
+   /etc/keepalived/keepalived.conf
+   /etc/init.d/keepalived start
 
 #No lab.conf
 server[exec]=/etc/init.d/isc-dhcp-server start
 pc0[exec]=dhclient eth0 -v
 
+
+#NETSTAT permite obter informações atualizadas sobre o status das portas e conexões de transporte (sockets).
+netstat –l         Exibe sockets em estado “Listening” (Servidor)
+netstat –t         Exibe sockets para o protocolo TCP.
+netstat –u         Exibe sockets para o protocolo UDP.
+netstat –n         Exibe informações numéricas ao invés de nomes.
+netstat –p         Exibe os processos envolvidos.
+netstat –ltnp      Exibe sockets TCP em estado “Listening” sem resolver nomes e com os processos envolvidos.
+netstat –A inet    Exibe dados somente da pilha TCP/IP.
+netstat –a         Exibe todos os sockets ativos.
+netstat –s         Exibe estatísticas sobre protocolos.
+netstat –r         Exibe a tabela de roteamento.
+
+#NETCAT permite abrir sockets para envio e recepção de informações.
+nc –lp 12345
+
+#NMAP permite o mapeamento de hosts e serviços(sockets) ativos em uma rede.
+nmap –sS alvo               Utiliza TCP-SYN para procurar portas TCP abertas no alvo.
+nmap -sS rede/x -p1-65535   Escaneia todas as portas da faixa de redeestabelecida.
+nmap –p80 rede/x            Rastreia a porta 80 nos hosts definida pela rede/x.
+nmap –sP rede/x             Utiliza “Ping Scan” para listar os hosts ativos narede.
+nmap –A alvo                Faz uma varredura completa no alvo.
+nmap –O alvo                Busca o Sistema Operacional do alvo.
+nmap -n                     Desativa a resolução de nomes (torna mais rápido)
+nmap -v                     Modo verboso
 
 #Suposto calculo de um ip 192.168.129.68/26
 - Primeiro abrimos os octetos do ip
